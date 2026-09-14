@@ -36,13 +36,6 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "PUT") {
-      const auth = req.headers.authorization || "";
-      const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-
-      if (!process.env.ADMIN_TOKEN || token !== process.env.ADMIN_TOKEN) {
-        return json(res, 401, { error: "unauthorized" });
-      }
-
       const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
       if (!body || typeof body.data !== "object") {
         return json(res, 400, { error: "invalid_payload" });
