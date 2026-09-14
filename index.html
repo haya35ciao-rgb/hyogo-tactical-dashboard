@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B4DBB">
+<title>HYOGO Tactical Dashboard</title>
+<style>
+:root{--b:#0B4DBB;--b2:#123C8C;--bg:#F5F8FD;--w:#fff;--t:#14213D;--m:#687386;--line:#D9E3F4;--soft:#EAF2FF;--shadow:0 8px 24px rgba(12,51,120,.10);--r:18px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;color:var(--t)}
+button,input,textarea,select{font:inherit}.app{max-width:920px;margin:auto;min-height:100vh}.top{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--b),var(--b2));color:#fff;padding:13px 15px;box-shadow:var(--shadow)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand small{display:block;font-size:10px;opacity:.75;letter-spacing:.08em}.brand strong{font-size:17px}
+.mode{display:flex;background:#ffffff22;border-radius:999px;padding:3px}.mode button{border:0;background:transparent;color:#fff;border-radius:999px;padding:7px 10px;font-size:12px}.mode .on{background:#fff;color:var(--b);font-weight:800}
+main{padding:16px 16px 90px}.hero{background:linear-gradient(135deg,var(--b),#1D63D6);color:#fff;border-radius:24px;padding:20px;box-shadow:var(--shadow)}.hero h1{font-size:24px;margin:0 0 8px}.hero p{margin:0;opacity:.9}
+.sec{display:flex;justify-content:space-between;align-items:center;margin:22px 2px 10px}.sec h2{font-size:17px;margin:0}.pill{display:inline-block;background:var(--soft);color:var(--b);border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800}
+.grid{display:grid;gap:12px}.team,.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}.team{padding:16px;cursor:pointer}.team h3{margin:0;font-size:18px}.team p{margin:7px 0 0;color:var(--m);font-size:13px}
+.card{padding:15px;margin-top:12px}.card h3{margin:0 0 10px;font-size:16px}.back,.edit,.ghost,.primary,.secondary{border-radius:11px;padding:9px 12px}.back,.edit,.primary{border:0;background:var(--b);color:#fff}.ghost,.secondary{border:1px solid var(--line);background:#fff;color:var(--t)}
+.head{background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow)}.head h2{margin:5px 0}.meta{font-size:12px;color:var(--m)}
+.critical,.pair{display:grid;gap:10px;margin-top:10px}.box,.analysis,.action{border-radius:14px;padding:13px}.box{background:#FFF6E5;border:1px solid #F2D59A}.analysis{background:#F7F9FC;border:1px solid #E6EBF2}.action{background:var(--soft);border:1px solid #C5D9FF}
+.label{font-size:11px;font-weight:800;letter-spacing:.03em;margin-bottom:5px}.value{font-size:14px;line-height:1.55;white-space:pre-wrap}.empty{color:#98A2B3;font-style:italic}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:14px 0 6px}.quick button{border:1px solid var(--line);background:#fff;border-radius:13px;padding:10px 3px;font-size:11px}.quick .on{background:var(--b);color:#fff;border-color:var(--b)}
+.tabs{display:flex;gap:8px;overflow:auto}.tab{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 12px;font-size:12px}.tab.on{background:var(--b);color:#fff;border-color:var(--b)}
+.player{padding:12px 0;border-top:1px solid var(--line)}.player:first-child{border-top:0}.num{display:grid;place-items:center;width:29px;height:29px;background:var(--b);color:#fff;border-radius:50%;font-size:12px;font-weight:800}
+.player-title{display:flex;align-items:center;gap:8px;font-weight:800;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.stat{background:#F7F9FC;border:1px solid #E6EBF2;border-radius:12px;padding:9px;text-align:center}
+.stat b{display:block;font-size:17px;color:var(--b)}.stat span{font-size:10px;color:var(--m)}
+.match-list{display:grid;gap:8px;margin-top:10px}.match-row{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}
+.match-row strong{font-size:13px}.match-row span{font-size:12px;color:var(--m)}
+.video{display:inline-block;color:var(--b);font-weight:800;text-decoration:none;margin-top:8px;font-size:13px}
+.sync{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:25;background:#0F1F3A;color:#fff;border-radius:999px;padding:8px 12px;font-size:11px;box-shadow:var(--shadow)}
+.modal-wrap{position:fixed;inset:0;background:#07152e88;display:flex;align-items:flex-end;justify-content:center;z-index:99}.modal{width:100%;max-width:920px;max-height:90vh;overflow:auto;background:#fff;border-radius:22px 22px 0 0;padding:18px}.modal h3{margin:0 0 14px}
+.field{margin-bottom:12px}.field label{display:block;font-size:12px;font-weight:800;margin-bottom:6px}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;background:#fff}.field textarea{min-height:100px}
+.actions{position:sticky;bottom:0;background:#fff;padding-top:10px;display:flex;gap:8px;justify-content:flex-end}.login-note{font-size:12px;color:var(--m);line-height:1.5}.error{color:#B42318;font-size:12px;margin-top:8px}
+@media(min-width:700px){main{padding:24px}.grid{grid-template-columns:repeat(3,1fr)}.pair,.critical{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body><div id="app" class="app"></div><div id="sync" class="sync">読み込み中…</div>
+<script>
+const API='/api/data';
+const emptyPhase=()=>({opponentFeatures:'',opponentIntent:'',caution:'',ourAction:'',memo:'',video:'',playerSummary:''});
+const seed={teams:[
+{id:'fukuoka',name:'福岡県選抜',match:'直近3試合データ登録済み',topCaution:'',topAction:'',
+sourceStats:{
+  matches:3,wins:2,draws:1,losses:0,gf:17,ga:5,shots:104,
+  matchesList:[
+    {opponent:'沖縄県選抜',score:'1-1',shots:17},
+    {opponent:'宮崎県選抜',score:'6-2',shots:43},
+    {opponent:'佐賀県選抜',score:'10-2',shots:44}
+  ]
+},
+team:{features:'',caution:'',ourAction:'',memo:'',video:'',playerSummary:''},
+players:[{"setNo": "", "number": "1", "name": "田島 卓", "position": "GK", "appearances": "3", "goals": "0", "shots": "0", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "3", "name": "松重 達哉", "position": "FP", "appearances": "3", "goals": "0", "shots": "5", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "5", "name": "花嶋 悠", "position": "FP", "appearances": "3", "goals": "3", "shots": "18", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "6", "name": "富田 海斗", "position": "FP", "appearances": "3", "goals": "2", "shots": "13", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "7", "name": "扇 霧月", "position": "FP", "appearances": "3", "goals": "2", "shots": "5", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "8", "name": "中野 開隆", "position": "FP", "appearances": "3", "goals": "0", "shots": "7", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "9", "name": "飛賀 翔", "position": "FP", "appearances": "3", "goals": "1", "shots": "7", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "10", "name": "扇 瑞希", "position": "FP", "appearances": "3", "goals": "4", "shots": "11", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "12", "name": "森 健登", "position": "GK", "appearances": "3", "goals": "0", "shots": "0", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "14", "name": "矢野 侑輝 マテウス", "position": "FP", "appearances": "3", "goals": "1", "shots": "9", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "15", "name": "窪田 圭祐", "position": "FP", "appearances": "3", "goals": "1", "shots": "12", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "18", "name": "奈須野 隼", "position": "FP", "appearances": "3", "goals": "1", "shots": "10", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "20", "name": "丸山 哲平", "position": "FP", "appearances": "3", "goals": "2", "shots": "7", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "21", "name": "村山 竜三", "position": "GK", "appearances": "3", "goals": "0", "shots": "0", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}],
+sets:[1,2,3].map(n=>({name:`SET ${n}`,phases:{posAttack:emptyPhase(),transDef:emptyPhase(),posDef:emptyPhase(),transAttack:emptyPhase()}}))},
+{id:'chiba',name:'千葉県選抜',match:'直近2試合データ登録済み',topCaution:'',topAction:'',
+sourceStats:{
+  matches:2,wins:1,draws:1,losses:0,gf:6,ga:3,shots:null,
+  matchesList:[
+    {opponent:'神奈川県選抜',score:'3-3',shots:null,note:'PK 8-7'},
+    {opponent:'栃木県選抜',score:'3-0',shots:null,note:''}
+  ]
+},
+team:{features:'',caution:'',ourAction:'',memo:'',video:'',playerSummary:''},
+players:[{"setNo": "", "number": "1", "name": "小原 正則", "position": "GK", "appearances": "1", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "2", "name": "白土 聖也", "position": "FP", "appearances": "1", "goals": "1", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "3", "name": "土肥 宏太", "position": "FP", "appearances": "2", "goals": "1", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "4", "name": "松尾 大輝", "position": "FP", "appearances": "2", "goals": "1", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "5", "name": "原 拓翔", "position": "FP", "appearances": "2", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "6", "name": "阿部 侑矢", "position": "FP", "appearances": "1", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "7", "name": "花田 孝汰", "position": "FP", "appearances": "2", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "9", "name": "小畑 慎治", "position": "FP", "appearances": "2", "goals": "1", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "10", "name": "山口 風河", "position": "FP", "appearances": "1", "goals": "1", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "11", "name": "小松 一樹", "position": "FP", "appearances": "2", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "12", "name": "福重 勝徳", "position": "GK", "appearances": "1", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "13", "name": "阿間見 陽", "position": "FP", "appearances": "1", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "14", "name": "濱田 悠矢", "position": "FP", "appearances": "1", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "15", "name": "佐々木 廉", "position": "FP", "appearances": "2", "goals": "1", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "16", "name": "富田 竜也", "position": "FP", "appearances": "1", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "17", "name": "根津 卓己", "position": "FP", "appearances": "1", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "18", "name": "髙谷 尚紀", "position": "FP", "appearances": "1", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "19", "name": "前田 昴佑", "position": "FP", "appearances": "2", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "20", "name": "平田 睦", "position": "GK", "appearances": "2", "goals": "0", "shots": "", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}],
+sets:[1,2,3].map(n=>({name:`SET ${n}`,phases:{posAttack:emptyPhase(),transDef:emptyPhase(),posDef:emptyPhase(),transAttack:emptyPhase()}}))},
+{id:'ehime',name:'愛媛県選抜',match:'直近2試合データ登録済み',topCaution:'',topAction:'',
+sourceStats:{
+  matches:2,wins:1,draws:1,losses:0,gf:8,ga:6,shots:60,
+  matchesList:[
+    {opponent:'香川県選抜',score:'8-6',shots:26},
+    {opponent:'徳島県選抜',score:'0-0',shots:34}
+  ]
+},
+team:{features:'',caution:'',ourAction:'',memo:'',video:'',playerSummary:''},
+players:[{"setNo": "", "number": "1", "name": "山本 啓仁", "position": "GK", "appearances": "2", "goals": "0", "shots": "1", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "2", "name": "富本 悠太", "position": "FP", "appearances": "2", "goals": "1", "shots": "6", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "3", "name": "谷口 賢太郎", "position": "FP", "appearances": "1", "goals": "0", "shots": "1", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "5", "name": "高須賀 謙", "position": "FP", "appearances": "2", "goals": "0", "shots": "4", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "7", "name": "成川 善亮", "position": "FP", "appearances": "2", "goals": "0", "shots": "5", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "8", "name": "上岡 悦士", "position": "FP", "appearances": "2", "goals": "0", "shots": "2", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "9", "name": "明比 良平", "position": "FP", "appearances": "1", "goals": "0", "shots": "2", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "10", "name": "東瀬 平幹", "position": "FP", "appearances": "2", "goals": "3", "shots": "11", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "11", "name": "立川 超太", "position": "FP", "appearances": "2", "goals": "1", "shots": "3", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "12", "name": "梅木 雄太", "position": "FP", "appearances": "2", "goals": "1", "shots": "3", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "13", "name": "西原 剛", "position": "FP", "appearances": "2", "goals": "0", "shots": "6", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "14", "name": "藤坂 翔太", "position": "FP", "appearances": "1", "goals": "0", "shots": "4", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "16", "name": "上松 怜雅", "position": "GK", "appearances": "1", "goals": "0", "shots": "0", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "17", "name": "大倉 一起", "position": "FP", "appearances": "1", "goals": "0", "shots": "2", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "19", "name": "山根 拓馬", "position": "FP", "appearances": "2", "goals": "2", "shots": "7", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}, {"setNo": "", "number": "20", "name": "池内 烈", "position": "FP", "appearances": "2", "goals": "0", "shots": "3", "features": "", "caution": "", "ourAction": "", "memo": "", "video": "", "playerSummary": ""}],
+sets:[1,2,3].map(n=>({name:`SET ${n}`,phases:{posAttack:emptyPhase(),transDef:emptyPhase(),posDef:emptyPhase(),transAttack:emptyPhase()}}))}
+],
+matchReviews:{
+  chiba_ehime:{
+    id:'chiba_ehime',
+    title:'千葉県選抜 vs 愛媛県選抜',
+    matchInfo:'',
+    overallReview:'',
+    chibaGoals:'',
+    chibaConceded:'',
+    ehimeGoals:'',
+    ehimeConceded:'',
+    commonNotes:'',
+    video:''
+  }
+}};
+let data=structuredClone(seed);
+let st={mode:'player',teamId:null,view:'overview',setIndex:0,phase:'posAttack'};
+let adminToken=sessionStorage.getItem('hyogo_admin_token')||'';
+const localPreview=location.protocol==='file:';
+
+
+function ensureSchema(){
+  if(!data.matchReviews) data.matchReviews={};
+  if(!data.matchReviews.chiba_ehime){
+    data.matchReviews.chiba_ehime={
+      id:'chiba_ehime',
+      title:'千葉県選抜 vs 愛媛県選抜',
+      matchInfo:'',
+      overallReview:'',
+      chibaGoals:'',
+      chibaConceded:'',
+      ehimeGoals:'',
+      ehimeConceded:'',
+      commonNotes:'',
+      video:''
+    };
+  }
+}
+
+function syncText(t){document.getElementById('sync').textContent=t}
+function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function val(s){return s?esc(s):'<span class="empty">未入力</span>'}
+function team(){return data.teams.find(t=>t.id===st.teamId)}
+
+async function loadData(){
+  if(localPreview){
+    data=JSON.parse(localStorage.getItem('hyogo_shared_preview')||'null')||structuredClone(seed);
+    ensureSchema();
+    syncText('ローカルプレビュー');
+    render(); return;
+  }
+  try{
+    const r=await fetch(API,{cache:'no-store'});
+    if(!r.ok) throw 0;
+    const j=await r.json();
+    data=j.data||structuredClone(seed);
+    ensureSchema();
+    syncText('共有データ同期済み');
+  }catch(e){syncText('読み込みエラー')}
+  render();
+}
+async function saveData(){
+  if(localPreview){
+    localStorage.setItem('hyogo_shared_preview',JSON.stringify(data));
+    syncText('ローカル保存済み'); render(); return true;
+  }
+  if(!adminToken){loginModal();return false}
+  syncText('保存中…');
+  const r=await fetch(API,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+adminToken},body:JSON.stringify({data})});
+  if(r.status===401){syncText('認証エラー'); sessionStorage.removeItem('hyogo_admin_token');adminToken='';loginModal('パスコードが違います');return false}
+  if(!r.ok){syncText('保存エラー');return false}
+  syncText('全員に共有済み');
+  render(); return true;
+}
+function header(){return `<div class="top"><div class="row"><div class="brand"><small>HYOGO FUTSAL</small><strong>Tactical Dashboard</strong></div><div class="mode">
+<button class="${st.mode==='player'?'on':''}" onclick="st.mode='player';render()">選手</button>
+<button class="${st.mode==='admin'?'on':''}" onclick="enterAdmin()">監督・コーチ</button>
+</div></div></div>`}
+function home(){return `${header()}<main><section class="hero"><h1>兵庫県代表<br>戦術ダッシュボード</h1><p>相手はどう来るか → 自分たちはどうするか</p></section>
+<div class="sec"><h2>対戦相手</h2><span class="pill">${st.mode==='admin'?'編集モード':'閲覧専用'}</span></div><div class="grid">
+${data.teams.map(t=>`<div class="team" onclick="st.teamId='${t.id}';st.view='overview';render()"><div class="row"><h3>${esc(t.name)}</h3><b style="color:var(--b);font-size:22px">›</b></div><p>${esc(t.match||'予選')}</p></div>`).join('')}
+</div></main>`}
+function teamPage(){const t=team();return `${header()}<main><button class="back" onclick="st.teamId=null;render()">‹ 対戦相手一覧</button>
+<section class="head" style="margin-top:12px"><div class="row"><div><span class="pill">OPPONENT</span><h2>${esc(t.name)}</h2><div class="meta">${esc(t.match||'予選')}</div></div>${st.mode==='admin'?`<button class="edit" onclick="editTop()">上部を編集</button>`:''}</div>
+<div class="critical"><div class="box"><div class="label">最重要注意事項</div><div class="value">${val(t.topCaution)}</div></div><div class="action"><div class="label">自チームの最重要ポイント</div><div class="value">${val(t.topAction)}</div></div></div></section>
+<div class="quick">${['overview','set1','set2','set3','players'].map((v,i)=>`<button class="${st.view===v?'on':''}" onclick="st.view='${v}';${v.startsWith('set')?`st.setIndex=${i-1};`:''}render()">${['全体','SET1','SET2','SET3','個人'][i]}</button>`).join('')}
+${(t.id==='fukuoka'||t.id==='ehime'||t.id==='chiba')?`<button class="${st.view==='scoring'?'on':''}" onclick="st.view='scoring';render()">得点ランキング</button>`:''}
+${(t.id==='chiba'||t.id==='ehime')?`<button class="${st.view==='matchreview'?'on':''}" onclick="st.view='matchreview';render()">対戦レビュー</button>`:''}</div>
+${st.view==='overview'?overview(t):st.view==='players'?players(t):st.view==='scoring'?scoringRanking(t):st.view==='matchreview'?matchReview(t):setView(t)}</main>`}
+
+function matchReview(t){
+  ensureSchema();
+  const r=data.matchReviews.chiba_ehime;
+  const isChiba=t.id==='chiba';
+  const goals=isChiba?r.chibaGoals:r.ehimeGoals;
+  const conceded=isChiba?r.chibaConceded:r.ehimeConceded;
+  const opp=isChiba?'愛媛県選抜':'千葉県選抜';
+  return `<div class="card">
+    <div class="row">
+      <div><h3 style="margin-bottom:3px">千葉県選抜 vs 愛媛県選抜</h3><div class="meta">共通レビュー｜両チームページに自動反映</div></div>
+      ${st.mode==='admin'?`<button class="edit" onclick="editMatchReview()">編集</button>`:''}
+    </div>
+    ${r.matchInfo?`<div class="analysis" style="margin-top:10px"><div class="label">試合情報</div><div class="value">${val(r.matchInfo)}</div></div>`:''}
+    <div class="analysis" style="margin-top:10px"><div class="label">試合レビュー</div><div class="value">${val(r.overallReview)}</div></div>
+  </div>
+  <div class="card">
+    <h3>${esc(t.name)}｜得点・失点シーン</h3>
+    <div class="pair">
+      <div class="action"><div class="label">得点シーン</div><div class="value">${val(goals)}</div></div>
+      <div class="analysis"><div class="label">失点シーン</div><div class="value">${val(conceded)}</div></div>
+    </div>
+    <div class="meta" style="margin-top:10px">対戦相手：${opp}</div>
+  </div>
+  <div class="card">
+    <h3>共通メモ・参考映像</h3>
+    <div class="analysis"><div class="label">共通メモ</div><div class="value">${val(r.commonNotes)}</div></div>
+    ${r.video?`<a class="video" href="${esc(r.video)}" target="_blank">▶ 参考映像を開く</a>`:''}
+  </div>`;
+}
+
+function editMatchReview(){
+  ensureSchema();
+  const r=data.matchReviews.chiba_ehime;
+  modal('千葉県選抜 vs 愛媛県選抜｜対戦レビュー',
+    field('matchInfo','試合情報',r.matchInfo)+
+    field('overallReview','試合レビュー',r.overallReview)+
+    field('chibaGoals','千葉県｜得点シーン',r.chibaGoals)+
+    field('chibaConceded','千葉県｜失点シーン',r.chibaConceded)+
+    field('ehimeGoals','愛媛県｜得点シーン',r.ehimeGoals)+
+    field('ehimeConceded','愛媛県｜失点シーン',r.ehimeConceded)+
+    field('commonNotes','共通メモ',r.commonNotes)+
+    field('video','参考動画URL',r.video,'input'),
+    fd=>Object.assign(r,Object.fromEntries(fd.entries()))
+  );
+}
+
+
+
+function genericTeamStats(t){
+  if(!t.sourceStats) return '';
+  const s=t.sourceStats;
+  return `<div class="card">
+    <div class="row"><div><h3 style="margin-bottom:3px">直近${s.matches}試合集計</h3><div class="meta">提供された公式試合記録画像から集計</div></div><span class="pill">${s.wins}勝${s.draws}分${s.losses}敗</span></div>
+    <div class="stats">
+      <div class="stat"><b>${s.gf}</b><span>得点</span></div>
+      <div class="stat"><b>${s.ga}</b><span>失点</span></div>
+      <div class="stat"><b>${s.shots==null?'—':s.shots}</b><span>シュート</span></div>
+    </div>
+    <div class="match-list">${s.matchesList.map(m=>`<div class="match-row"><div><b>vs ${esc(m.opponent)}</b><div class="rank-meta">${m.shots==null?'シュート数記載なし':`チームシュート ${esc(m.shots)}本`}${m.note?`｜${esc(m.note)}`:''}</div></div><b>${esc(m.score)}</b></div>`).join('')}</div>
+  </div>`;
+}
+
+function fukuokaStats(t){
+  if(!t.sourceStats) return '';
+  const s=t.sourceStats;
+  const ranked=[...t.players].filter(p=>Number(p.goals)>0).sort((a,b)=>Number(b.goals)-Number(a.goals)||Number(b.shots)-Number(a.shots)||Number(a.number)-Number(b.number));
+  let lastGoals=null, rank=0, idx=0;
+  const rows=ranked.map(p=>{
+    idx++;
+    if(Number(p.goals)!==lastGoals){rank=idx;lastGoals=Number(p.goals);}
+    return `<div class="rank-row"><div class="rank-no">${rank}</div><div><b>#${esc(p.number)} ${esc(p.name)}</b><div class="rank-meta">${esc(p.position)}｜シュート ${esc(p.shots)}本</div></div><div class="rank-score">${esc(p.goals)}得点</div></div>`;
+  }).join('');
+  return `<div class="card">
+    <div class="row"><div><h3 style="margin-bottom:3px">直近3試合集計</h3><div class="meta">提供された公式試合記録画像から集計</div></div><span class="pill">${s.wins}勝${s.draws}分${s.losses}敗</span></div>
+    <div class="stats">
+      <div class="stat"><b>${s.gf}</b><span>得点</span></div>
+      <div class="stat"><b>${s.ga}</b><span>失点</span></div>
+      <div class="stat"><b>${s.shots==null?'—':s.shots}</b><span>シュート</span></div>
+    </div>
+    <div class="match-list">${s.matchesList.map(m=>`<div class="match-row"><div><b>vs ${esc(m.opponent)}</b><div class="rank-meta">${m.shots==null?'シュート数記載なし':`チームシュート ${esc(m.shots)}本`}${m.note?`｜${esc(m.note)}`:''}</div></div><b>${esc(m.score)}</b></div>`).join('')}</div>
+  </div>
+  <div class="card">
+    <div class="row"><div><h3 style="margin-bottom:3px">得点ランキング</h3><div class="meta">3試合累計｜同得点はシュート数が多い順</div></div><span class="pill">${ranked.length}名得点</span></div>
+    <div class="rank-list">${rows}</div>
+  </div>`;
+}
+
+function overview(t){const x=t.team;return `${t.id==='fukuoka'?fukuokaStats(t):((t.id==='ehime'||t.id==='chiba')?genericTeamStats(t):'')}${t.sourceStats?sourceStats(t):''}<div class="card"><div class="row"><h3>チーム全体</h3>${st.mode==='admin'?`<button class="edit" onclick="editTeam()">編集</button>`:''}</div>
+${st.mode==='player'&&x.playerSummary?`<div class="action"><div class="label">選手向け要点</div><div class="value">${val(x.playerSummary)}</div></div>`:''}
+<div class="pair"><div class="analysis"><div class="label">相手の特徴</div><div class="value">${val(x.features)}</div></div><div class="action"><div class="label">自チームでやること</div><div class="value">${val(x.ourAction)}</div></div></div>
+<div class="analysis" style="margin-top:10px"><div class="label">注意事項</div><div class="value">${val(x.caution)}</div></div>
+${st.mode==='admin'?`<div class="analysis" style="margin-top:10px"><div class="label">監督・コーチメモ</div><div class="value">${val(x.memo)}</div></div>`:''}
+${x.video?`<a class="video" href="${esc(x.video)}" target="_blank">▶ 参考映像を開く</a>`:''}</div>`}
+
+function sourceStats(t){
+ const s=t.sourceStats;
+ return `<div class="card">
+   <div class="row"><div><h3 style="margin-bottom:3px">直近3試合集計</h3><div class="meta">提供画像から初期登録</div></div><span class="pill">${s.wins}勝${s.draws}分${s.losses}敗</span></div>
+   <div class="stats">
+     <div class="stat"><b>${s.gf}</b><span>得点</span></div>
+     <div class="stat"><b>${s.ga}</b><span>失点</span></div>
+     <div class="stat"><b>${s.shots==null?'—':s.shots}</b><span>シュート</span></div>
+   </div>
+   <div class="match-list">${s.matchesList.map(m=>`<div class="match-row"><div><strong>vs ${esc(m.opponent)}</strong><br><span>${esc(m.date)}</span></div><b>${esc(m.score)}</b></div>`).join('')}</div>
+   <div class="meta" style="margin-top:10px">※個人選手データは一旦未登録です。必要になった時点で監督・コーチ画面から追加できます。</div>
+ </div>`;
+}
+const phases=[['posAttack','定位置攻撃'],['transDef','攻撃 → 守備'],['posDef','定位置守備'],['transAttack','守備 → 攻撃']];
+function setView(t){const s=t.sets[st.setIndex],p=s.phases[st.phase], members=t.players.filter(x=>String(x.setNo||'')===String(st.setIndex+1));return `<div class="card"><div class="row"><h3>${esc(s.name)}</h3><span class="pill">${members.length}名</span></div>
+${members.length?`<div style="margin:9px 0 4px">${members.map(x=>`<span class="pill" style="margin:3px">#${esc(x.number||'-')} ${esc(x.name||'')}</span>`).join('')}</div>`:''}
+<div class="tabs">${phases.map(([k,n])=>`<button class="tab ${st.phase===k?'on':''}" onclick="st.phase='${k}';render()">${n}</button>`).join('')}</div></div>
+<div class="card"><div class="row"><h3>${phases.find(x=>x[0]===st.phase)[1]}</h3>${st.mode==='admin'?`<button class="edit" onclick="editPhase()">編集</button>`:''}</div>
+${st.mode==='player'&&p.playerSummary?`<div class="action"><div class="label">選手向け要点</div><div class="value">${val(p.playerSummary)}</div></div>`:''}
+<div class="pair"><div class="analysis"><div class="label">相手の特徴</div><div class="value">${val(p.opponentFeatures)}</div></div><div class="action"><div class="label">自チームでやること</div><div class="value">${val(p.ourAction)}</div></div></div>
+${p.opponentIntent?`<div class="analysis" style="margin-top:10px"><div class="label">相手の狙い / 守り方</div><div class="value">${val(p.opponentIntent)}</div></div>`:''}
+<div class="analysis" style="margin-top:10px"><div class="label">注意事項</div><div class="value">${val(p.caution)}</div></div>
+${st.mode==='admin'?`<div class="analysis" style="margin-top:10px"><div class="label">詳細メモ</div><div class="value">${val(p.memo)}</div></div>`:''}
+${p.video?`<a class="video" href="${esc(p.video)}" target="_blank">▶ 参考映像を開く</a>`:''}</div>`}
+
+function scoringRanking(t){
+  const hasShots=t.players.some(p=>p.shots!=='' && p.shots!=null);
+  const ranked=[...t.players]
+    .filter(p=>Number(p.goals||0)>0)
+    .sort((a,b)=>{
+      const gd=Number(b.goals||0)-Number(a.goals||0);
+      if(gd!==0) return gd;
+      if(hasShots){
+        const sd=Number(b.shots||0)-Number(a.shots||0);
+        if(sd!==0) return sd;
+      }
+      return Number(a.number||999)-Number(b.number||999);
+    });
+
+  let rank=0, prevGoals=null, prevShots=null;
+  const rows=ranked.map((p,idx)=>{
+    const g=Number(p.goals||0);
+    const s=(p.shots===''||p.shots==null)?null:Number(p.shots);
+    const tieChanged = hasShots ? (g!==prevGoals || s!==prevShots) : (g!==prevGoals);
+    if(tieChanged){ rank=idx+1; prevGoals=g; prevShots=s; }
+    const rate=(s!=null && s>0) ? ((g/s)*100).toFixed(1)+'%' : '—';
+    return `<div class="rank-row">
+      <div class="rank-no">${rank}</div>
+      <div>
+        <b>#${esc(p.number)} ${esc(p.name)}</b>
+        <div class="rank-meta">${esc(p.position||'')}｜シュート ${s==null?'記載なし':s+'本'}${hasShots?`｜決定率 ${rate}`:''}</div>
+      </div>
+      <div class="rank-score">${g}得点</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="card">
+    <div class="row">
+      <div>
+        <h3 style="margin-bottom:3px">得点ランキング</h3>
+        <div class="meta">${t.sourceStats?t.sourceStats.matches:'-'}試合累計｜${hasShots?'同得点はシュート数が多い選手を上位':'シュート数の記載がないため、同得点は同順位'}</div>
+      </div>
+      <span class="pill">${ranked.length}名得点</span>
+    </div>
+    <div class="rank-list">${rows || '<div class="empty">得点者データなし</div>'}</div>
+  </div>`;
+}
+function players(t){const gs=[1,2,3].map(n=>({n,items:t.players.filter(p=>String(p.setNo||'')===String(n))})),un=t.players.filter(p=>!p.setNo);return `<div class="card"><div class="row"><div><h3 style="margin-bottom:3px">相手選手情報一覧</h3><div class="meta">SETごとに整理</div></div>${st.mode==='admin'?`<button class="edit" onclick="editPlayer(-1)">＋ 選手追加</button>`:''}</div></div>
+${gs.map(g=>`<div class="card"><div class="row"><h3>SET ${g.n}</h3><span class="pill">${g.items.length}名</span></div>${g.items.length?g.items.map(p=>playerCard(p,t.players.indexOf(p))).join(''):`<div class="empty">未登録</div>`}</div>`).join('')}
+${un.length?`<div class="card"><div class="row"><h3>SET未設定</h3><span class="pill">${un.length}名</span></div>${un.map(p=>playerCard(p,t.players.indexOf(p))).join('')}</div>`:''}` }
+function playerCard(p,i){return `<div class="player"><div class="row"><div class="player-title"><span class="num">${esc(p.number||'-')}</span><span>${esc(p.name||'選手名未入力')}</span>${p.position?`<span class="pill">${esc(p.position)}</span>`:''}${p.setNo?`<span class="pill">SET ${esc(p.setNo)}</span>`:`<span class="pill">SET未設定</span>`}</div>${st.mode==='admin'?`<button class="ghost" onclick="editPlayer(${i})">編集</button>`:''}</div>
+<div class="stats">
+  <div class="stat"><b>${esc(p.appearances||'-')}</b><span>対象試合</span></div>
+  <div class="stat"><b>${esc(p.goals||'0')}</b><span>得点</span></div>
+  <div class="stat"><b>${p.shots===''||p.shots==null?'—':esc(p.shots)}</b><span>シュート</span></div>
+</div>
+<div class="pair"><div class="analysis"><div class="label">特徴 / 注意事項</div><div class="value">${val([p.features,p.caution].filter(Boolean).join('\n'))}</div></div><div class="action"><div class="label">自チームでやること</div><div class="value">${val(p.ourAction)}</div></div></div>
+${p.video?`<a class="video" href="${esc(p.video)}" target="_blank">▶ 参考映像を開く</a>`:''}</div>`}
+function render(){ensureSchema();document.getElementById('app').innerHTML=st.teamId?teamPage():home()}
+function enterAdmin(){ if(localPreview||adminToken){st.mode='admin';render()} else loginModal() }
+function loginModal(msg=''){modalRaw('監督・コーチ編集',`<p class="login-note">管理者パスコードを入力してください。選手にはこのパスコードを共有しないでください。</p><div class="field"><label>管理者パスコード</label><input id="token" type="password" autocomplete="current-password"></div>${msg?`<div class="error">${esc(msg)}</div>`:''}`,()=>{
+  adminToken=document.getElementById('token').value.trim(); if(adminToken){sessionStorage.setItem('hyogo_admin_token',adminToken);st.mode='admin';render()}
+})}
+function modalRaw(title,html,onSave){const w=document.createElement('div');w.className='modal-wrap';w.innerHTML=`<div class="modal"><h3>${esc(title)}</h3>${html}<div class="actions"><button class="secondary" id="c">キャンセル</button><button class="primary" id="s">OK</button></div></div>`;document.body.appendChild(w);w.querySelector('#c').onclick=()=>w.remove();w.querySelector('#s').onclick=()=>{onSave();w.remove()}}
+function modal(title,fields,onSave){const w=document.createElement('div');w.className='modal-wrap';w.innerHTML=`<div class="modal"><h3>${esc(title)}</h3><form id="f">${fields}<div class="actions"><button type="button" class="secondary" id="c">キャンセル</button><button class="primary">保存して共有</button></div></form></div>`;document.body.appendChild(w);w.querySelector('#c').onclick=()=>w.remove();w.querySelector('#f').onsubmit=async e=>{e.preventDefault();onSave(new FormData(e.target));w.remove();await saveData()}}
+function field(n,l,v='',type='textarea'){return `<div class="field"><label>${esc(l)}</label>${type==='input'?`<input name="${n}" value="${esc(v||'')}">`:`<textarea name="${n}">${esc(v||'')}</textarea>`}</div>`}
+function selectField(n,l,v=''){return `<div class="field"><label>${esc(l)}</label><select name="${n}"><option value="">SET未設定</option>${[1,2,3].map(x=>`<option value="${x}" ${String(v)===String(x)?'selected':''}>SET ${x}</option>`).join('')}</select></div>`}
+function editTop(){const t=team();modal(`${t.name}｜上部`,field('match','試合情報',t.match,'input')+field('topCaution','最重要注意事項',t.topCaution)+field('topAction','自チームの最重要ポイント',t.topAction),fd=>Object.assign(t,Object.fromEntries(fd.entries())))}
+function editTeam(){const x=team().team;modal('チーム全体',field('features','相手チームの特徴',x.features)+field('caution','注意事項',x.caution)+field('ourAction','自チームでやること',x.ourAction)+field('playerSummary','選手向け要点',x.playerSummary)+field('memo','監督・コーチメモ',x.memo)+field('video','参考動画URL',x.video,'input'),fd=>Object.assign(x,Object.fromEntries(fd.entries())))}
+function editPhase(){const p=team().sets[st.setIndex].phases[st.phase];modal('SET局面編集',field('opponentFeatures','相手の特徴',p.opponentFeatures)+field('opponentIntent','相手の狙い / 守り方',p.opponentIntent)+field('caution','注意事項',p.caution)+field('ourAction','自チームでやること',p.ourAction)+field('playerSummary','選手向け要点',p.playerSummary)+field('memo','詳細メモ',p.memo)+field('video','参考動画URL',p.video,'input'),fd=>Object.assign(p,Object.fromEntries(fd.entries())))}
+function editPlayer(i){const t=team(),p=i>=0?t.players[i]:{setNo:'',number:'',name:'',position:'',appearances:'',goals:'',shots:'',features:'',caution:'',ourAction:'',memo:'',video:'',playerSummary:''};modal(i>=0?'選手編集':'選手追加',selectField('setNo','所属SET',p.setNo)+field('number','背番号',p.number,'input')+field('name','選手名',p.name,'input')+field('position','ポジション',p.position,'input')+field('appearances','対象試合数',p.appearances,'input')+field('goals','得点',p.goals,'input')+field('shots','シュート数',p.shots,'input')+field('features','特徴',p.features)+field('caution','注意事項',p.caution)+field('ourAction','自チームでやること',p.ourAction)+field('playerSummary','選手向け要点',p.playerSummary)+field('memo','監督・コーチメモ',p.memo)+field('video','参考動画URL',p.video,'input'),fd=>{const o=Object.fromEntries(fd.entries());i>=0?Object.assign(t.players[i],o):t.players.push(o)})}
+loadData();
+setInterval(()=>{ if(!localPreview && st.mode==='player') loadData(); },30000);
+</script></body></html>
