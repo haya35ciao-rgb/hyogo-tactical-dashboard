@@ -90,8 +90,7 @@ matchReviews:{
   }
 }};
 let data=structuredClone(seed);
-let st={mode:'player',teamId:null,view:'overview',setIndex:0,phase:'posAttack'};
-let adminToken=sessionStorage.getItem('hyogo_admin_token')||'';
+let st={mode:'admin',teamId:null,view:'overview',setIndex:0,phase:'posAttack'};
 const localPreview=location.protocol==='file:';
 
 
@@ -140,24 +139,19 @@ async function saveData(){
     localStorage.setItem('hyogo_shared_preview',JSON.stringify(data));
     syncText('ローカル保存済み'); render(); return true;
   }
-  if(!adminToken){loginModal();return false}
   syncText('保存中…');
-  const r=await fetch(API,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+adminToken},body:JSON.stringify({data})});
-  if(r.status===401){syncText('認証エラー'); sessionStorage.removeItem('hyogo_admin_token');adminToken='';loginModal('パスコードが違います');return false}
+  const r=await fetch(API,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({data})});
   if(!r.ok){syncText('保存エラー');return false}
   syncText('全員に共有済み');
   render(); return true;
 }
-function header(){return `<div class="top"><div class="row"><div class="brand"><small>HYOGO FUTSAL</small><strong>Tactical Dashboard</strong></div><div class="mode">
-<button class="${st.mode==='player'?'on':''}" onclick="st.mode='player';render()">選手</button>
-<button class="${st.mode==='admin'?'on':''}" onclick="enterAdmin()">監督・コーチ</button>
-</div></div></div>`}
+function header(){return `<div class="top"><div class="row"><div class="brand"><small>HYOGO FUTSAL</small><strong>Tactical Dashboard</strong></div></div></div>`}
 function home(){return `${header()}<main><section class="hero"><h1>兵庫県代表<br>戦術ダッシュボード</h1><p>相手はどう来るか → 自分たちはどうするか</p></section>
-<div class="sec"><h2>対戦相手</h2><span class="pill">${st.mode==='admin'?'編集モード':'閲覧専用'}</span></div><div class="grid">
+<div class="sec"><h2>対戦相手</h2><span class="pill">誰でも編集可能</span></div><div class="grid">
 ${data.teams.map(t=>`<div class="team" onclick="st.teamId='${t.id}';st.view='overview';render()"><div class="row"><h3>${esc(t.name)}</h3><b style="color:var(--b);font-size:22px">›</b></div><p>${esc(t.match||'予選')}</p></div>`).join('')}
 </div></main>`}
 function teamPage(){const t=team();return `${header()}<main><button class="back" onclick="st.teamId=null;render()">‹ 対戦相手一覧</button>
-<section class="head" style="margin-top:12px"><div class="row"><div><span class="pill">OPPONENT</span><h2>${esc(t.name)}</h2><div class="meta">${esc(t.match||'予選')}</div></div>${st.mode==='admin'?`<button class="edit" onclick="editTop()">上部を編集</button>`:''}</div>
+<section class="head" style="margin-top:12px"><div class="row"><div><span class="pill">OPPONENT</span><h2>${esc(t.name)}</h2><div class="meta">${esc(t.match||'予選')}</div></div><button class="edit" onclick="editTop()">上部を編集</button></div>
 <div class="critical"><div class="box"><div class="label">最重要注意事項</div><div class="value">${val(t.topCaution)}</div></div><div class="action"><div class="label">自チームの最重要ポイント</div><div class="value">${val(t.topAction)}</div></div></div></section>
 <div class="quick">${['overview','set1','set2','set3','players'].map((v,i)=>`<button class="${st.view===v?'on':''}" onclick="st.view='${v}';${v.startsWith('set')?`st.setIndex=${i-1};`:''}render()">${['全体','SET1','SET2','SET3','個人'][i]}</button>`).join('')}
 ${(t.id==='fukuoka'||t.id==='ehime'||t.id==='chiba')?`<button class="${st.view==='scoring'?'on':''}" onclick="st.view='scoring';render()">得点ランキング</button>`:''}
@@ -174,7 +168,7 @@ function matchReview(t){
   return `<div class="card">
     <div class="row">
       <div><h3 style="margin-bottom:3px">千葉県選抜 vs 愛媛県選抜</h3><div class="meta">共通レビュー｜両チームページに自動反映</div></div>
-      ${st.mode==='admin'?`<button class="edit" onclick="editMatchReview()">編集</button>`:''}
+      <button class="edit" onclick="editMatchReview()">編集</button>
     </div>
     ${r.matchInfo?`<div class="analysis" style="margin-top:10px"><div class="label">試合情報</div><div class="value">${val(r.matchInfo)}</div></div>`:''}
     <div class="analysis" style="margin-top:10px"><div class="label">試合レビュー</div><div class="value">${val(r.overallReview)}</div></div>
@@ -251,7 +245,7 @@ function fukuokaStats(t){
   </div>`;
 }
 
-function overview(t){const x=t.team;return `${t.id==='fukuoka'?fukuokaStats(t):((t.id==='ehime'||t.id==='chiba')?genericTeamStats(t):'')}${t.sourceStats?sourceStats(t):''}<div class="card"><div class="row"><h3>チーム全体</h3>${st.mode==='admin'?`<button class="edit" onclick="editTeam()">編集</button>`:''}</div>
+function overview(t){const x=t.team;return `${t.id==='fukuoka'?fukuokaStats(t):((t.id==='ehime'||t.id==='chiba')?genericTeamStats(t):'')}${t.sourceStats?sourceStats(t):''}<div class="card"><div class="row"><h3>チーム全体</h3><button class="edit" onclick="editTeam()">編集</button></div>
 ${st.mode==='player'&&x.playerSummary?`<div class="action"><div class="label">選手向け要点</div><div class="value">${val(x.playerSummary)}</div></div>`:''}
 <div class="pair"><div class="analysis"><div class="label">相手の特徴</div><div class="value">${val(x.features)}</div></div><div class="action"><div class="label">自チームでやること</div><div class="value">${val(x.ourAction)}</div></div></div>
 <div class="analysis" style="margin-top:10px"><div class="label">注意事項</div><div class="value">${val(x.caution)}</div></div>
@@ -275,7 +269,7 @@ const phases=[['posAttack','定位置攻撃'],['transDef','攻撃 → 守備'],[
 function setView(t){const s=t.sets[st.setIndex],p=s.phases[st.phase], members=t.players.filter(x=>String(x.setNo||'')===String(st.setIndex+1));return `<div class="card"><div class="row"><h3>${esc(s.name)}</h3><span class="pill">${members.length}名</span></div>
 ${members.length?`<div style="margin:9px 0 4px">${members.map(x=>`<span class="pill" style="margin:3px">#${esc(x.number||'-')} ${esc(x.name||'')}</span>`).join('')}</div>`:''}
 <div class="tabs">${phases.map(([k,n])=>`<button class="tab ${st.phase===k?'on':''}" onclick="st.phase='${k}';render()">${n}</button>`).join('')}</div></div>
-<div class="card"><div class="row"><h3>${phases.find(x=>x[0]===st.phase)[1]}</h3>${st.mode==='admin'?`<button class="edit" onclick="editPhase()">編集</button>`:''}</div>
+<div class="card"><div class="row"><h3>${phases.find(x=>x[0]===st.phase)[1]}</h3><button class="edit" onclick="editPhase()">編集</button></div>
 ${st.mode==='player'&&p.playerSummary?`<div class="action"><div class="label">選手向け要点</div><div class="value">${val(p.playerSummary)}</div></div>`:''}
 <div class="pair"><div class="analysis"><div class="label">相手の特徴</div><div class="value">${val(p.opponentFeatures)}</div></div><div class="action"><div class="label">自チームでやること</div><div class="value">${val(p.ourAction)}</div></div></div>
 ${p.opponentIntent?`<div class="analysis" style="margin-top:10px"><div class="label">相手の狙い / 守り方</div><div class="value">${val(p.opponentIntent)}</div></div>`:''}
@@ -325,10 +319,10 @@ function scoringRanking(t){
     <div class="rank-list">${rows || '<div class="empty">得点者データなし</div>'}</div>
   </div>`;
 }
-function players(t){const gs=[1,2,3].map(n=>({n,items:t.players.filter(p=>String(p.setNo||'')===String(n))})),un=t.players.filter(p=>!p.setNo);return `<div class="card"><div class="row"><div><h3 style="margin-bottom:3px">相手選手情報一覧</h3><div class="meta">SETごとに整理</div></div>${st.mode==='admin'?`<button class="edit" onclick="editPlayer(-1)">＋ 選手追加</button>`:''}</div></div>
+function players(t){const gs=[1,2,3].map(n=>({n,items:t.players.filter(p=>String(p.setNo||'')===String(n))})),un=t.players.filter(p=>!p.setNo);return `<div class="card"><div class="row"><div><h3 style="margin-bottom:3px">相手選手情報一覧</h3><div class="meta">SETごとに整理</div></div><button class="edit" onclick="editPlayer(-1)">＋ 選手追加</button></div></div>
 ${gs.map(g=>`<div class="card"><div class="row"><h3>SET ${g.n}</h3><span class="pill">${g.items.length}名</span></div>${g.items.length?g.items.map(p=>playerCard(p,t.players.indexOf(p))).join(''):`<div class="empty">未登録</div>`}</div>`).join('')}
 ${un.length?`<div class="card"><div class="row"><h3>SET未設定</h3><span class="pill">${un.length}名</span></div>${un.map(p=>playerCard(p,t.players.indexOf(p))).join('')}</div>`:''}` }
-function playerCard(p,i){return `<div class="player"><div class="row"><div class="player-title"><span class="num">${esc(p.number||'-')}</span><span>${esc(p.name||'選手名未入力')}</span>${p.position?`<span class="pill">${esc(p.position)}</span>`:''}${p.setNo?`<span class="pill">SET ${esc(p.setNo)}</span>`:`<span class="pill">SET未設定</span>`}</div>${st.mode==='admin'?`<button class="ghost" onclick="editPlayer(${i})">編集</button>`:''}</div>
+function playerCard(p,i){return `<div class="player"><div class="row"><div class="player-title"><span class="num">${esc(p.number||'-')}</span><span>${esc(p.name||'選手名未入力')}</span>${p.position?`<span class="pill">${esc(p.position)}</span>`:''}${p.setNo?`<span class="pill">SET ${esc(p.setNo)}</span>`:`<span class="pill">SET未設定</span>`}</div><button class="ghost" onclick="editPlayer(${i})">編集</button></div>
 <div class="stats">
   <div class="stat"><b>${esc(p.appearances||'-')}</b><span>対象試合</span></div>
   <div class="stat"><b>${esc(p.goals||'0')}</b><span>得点</span></div>
@@ -337,10 +331,6 @@ function playerCard(p,i){return `<div class="player"><div class="row"><div class
 <div class="pair"><div class="analysis"><div class="label">特徴 / 注意事項</div><div class="value">${val([p.features,p.caution].filter(Boolean).join('\n'))}</div></div><div class="action"><div class="label">自チームでやること</div><div class="value">${val(p.ourAction)}</div></div></div>
 ${p.video?`<a class="video" href="${esc(p.video)}" target="_blank">▶ 参考映像を開く</a>`:''}</div>`}
 function render(){ensureSchema();document.getElementById('app').innerHTML=st.teamId?teamPage():home()}
-function enterAdmin(){ if(localPreview||adminToken){st.mode='admin';render()} else loginModal() }
-function loginModal(msg=''){modalRaw('監督・コーチ編集',`<p class="login-note">管理者パスコードを入力してください。選手にはこのパスコードを共有しないでください。</p><div class="field"><label>管理者パスコード</label><input id="token" type="password" autocomplete="current-password"></div>${msg?`<div class="error">${esc(msg)}</div>`:''}`,()=>{
-  adminToken=document.getElementById('token').value.trim(); if(adminToken){sessionStorage.setItem('hyogo_admin_token',adminToken);st.mode='admin';render()}
-})}
 function modalRaw(title,html,onSave){const w=document.createElement('div');w.className='modal-wrap';w.innerHTML=`<div class="modal"><h3>${esc(title)}</h3>${html}<div class="actions"><button class="secondary" id="c">キャンセル</button><button class="primary" id="s">OK</button></div></div>`;document.body.appendChild(w);w.querySelector('#c').onclick=()=>w.remove();w.querySelector('#s').onclick=()=>{onSave();w.remove()}}
 function modal(title,fields,onSave){const w=document.createElement('div');w.className='modal-wrap';w.innerHTML=`<div class="modal"><h3>${esc(title)}</h3><form id="f">${fields}<div class="actions"><button type="button" class="secondary" id="c">キャンセル</button><button class="primary">保存して共有</button></div></form></div>`;document.body.appendChild(w);w.querySelector('#c').onclick=()=>w.remove();w.querySelector('#f').onsubmit=async e=>{e.preventDefault();onSave(new FormData(e.target));w.remove();await saveData()}}
 function field(n,l,v='',type='textarea'){return `<div class="field"><label>${esc(l)}</label>${type==='input'?`<input name="${n}" value="${esc(v||'')}">`:`<textarea name="${n}">${esc(v||'')}</textarea>`}</div>`}
@@ -350,5 +340,5 @@ function editTeam(){const x=team().team;modal('チーム全体',field('features'
 function editPhase(){const p=team().sets[st.setIndex].phases[st.phase];modal('SET局面編集',field('opponentFeatures','相手の特徴',p.opponentFeatures)+field('opponentIntent','相手の狙い / 守り方',p.opponentIntent)+field('caution','注意事項',p.caution)+field('ourAction','自チームでやること',p.ourAction)+field('playerSummary','選手向け要点',p.playerSummary)+field('memo','詳細メモ',p.memo)+field('video','参考動画URL',p.video,'input'),fd=>Object.assign(p,Object.fromEntries(fd.entries())))}
 function editPlayer(i){const t=team(),p=i>=0?t.players[i]:{setNo:'',number:'',name:'',position:'',appearances:'',goals:'',shots:'',features:'',caution:'',ourAction:'',memo:'',video:'',playerSummary:''};modal(i>=0?'選手編集':'選手追加',selectField('setNo','所属SET',p.setNo)+field('number','背番号',p.number,'input')+field('name','選手名',p.name,'input')+field('position','ポジション',p.position,'input')+field('appearances','対象試合数',p.appearances,'input')+field('goals','得点',p.goals,'input')+field('shots','シュート数',p.shots,'input')+field('features','特徴',p.features)+field('caution','注意事項',p.caution)+field('ourAction','自チームでやること',p.ourAction)+field('playerSummary','選手向け要点',p.playerSummary)+field('memo','監督・コーチメモ',p.memo)+field('video','参考動画URL',p.video,'input'),fd=>{const o=Object.fromEntries(fd.entries());i>=0?Object.assign(t.players[i],o):t.players.push(o)})}
 loadData();
-setInterval(()=>{ if(!localPreview && st.mode==='player') loadData(); },30000);
+setInterval(()=>{ if(!localPreview && !document.querySelector('.modal-wrap')) loadData(); },30000);
 </script></body></html>
